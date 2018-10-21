@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+
+    <div id="wrapper">
+        <div id="container">
+            <div class="col-md-4 col-xs-12">
+        {% form_theme form_client 'bootstrap_3_layout.html.twig' %}   
+			{{ form_start(form_client) }}
+                {{form_row(form_client.idBooking.email)}}
+                {{form_row(form_client.idBooking.idCourse)}}
+                <div id="min_spots"></div>
+                {{form_row(form_client.idBooking.studCount)}}
+                {{form_row(form_client.idCourseClasses)}}
+			{{ form_end(form_client) }}
+        </div>
+        <div class="col-xs-9" id="confirm"></div>
+        </div>
+        
+
+    </div>
+{% endblock %}
+{% block javascripts %}
+<script type="text/javascript">
+        
+
+        $('#booking_info_idBooking_idCourse').change(function(){
+
+            $('#booking_info_idCourseClasses').hide();
+
+            var $form = $(this).closest('form');
+            var val = $(this).val(); 
+            // get max available students count for current course and render description of class
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                url: "{{ path('app_ajax_course_id')}}",
+                data: {'course_id': val},
+                success: function(data) {
+                    $('#min_spots').text('Max students count ' + data.minSpots);
+                     //Render course classes 
+                    $('#booking_info_idCourseClasses').html(data.html);
+                    $('#booking_info_idBooking_studCount').prop('disabled', false);
+                }
+            });
+        });
+
+        //validate students count, if ok show classes
+        $('#booking_info_idBooking_studCount').change(function(){
+            if ($('#booking_info_idBooking_studCount').val().length){
+                if (parseInt($('#booking_info_idBooking_studCount').val()) <= parseInt($('#min_spots').text().replace('Max students count ', ''))){
+                    $('#booking_info_idCourseClasses').show();
+                    if ($('.c_class').length){
+                        $('.c_class').hide();
+                        $('#class_1').show();
+                    }
+                } else {
+                    alert('Not enough spots');
+                    $('#class_1').hide();
+                }
+            } else {
+                $('#course_classes').hide();
+            }
+        });
+
+        //AJAX submit of form
+        $('button[type="submit"]').click(function () {
+            $('form[name="booking_info"]').submit(function(e){
+                e.preventDefault();
+                $.ajax(
+                {
+                    url: "{{ path('app_homepage') }}",
+                    type: "POST",
+                    data: $('form[name="booking_info"]').serialize(),
+                    success: function (data)
+                    {
+                       $('#confirm').html(data);
+                    }
+                });
+            });
+        });
+
+</script>
+{% endblock %}

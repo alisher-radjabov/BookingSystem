@@ -1,0 +1,19 @@
+app:
+    resource: "@AppBundle/Controller/"
+    type:     annotation
+app_homepage:
+    path:     /
+    defaults: { _controller: AppBundle:Default:index }
+app_ajax_course_id:
+    path:     /course
+    defaults: { _controller: AppBundle:Default:courseid }
+app_ajax_spots:
+    path:     /spots
+    defaults: { _controller: AppBundle:Default:spots }
+admin_area:
+    resource: "@SonataAdminBundle/Resources/config/routing/sonata_admin.xml"
+    prefix: /admin
+_sonata_admin:
+    resource: .
+    type: sonata_admin
+    prefix: /admin

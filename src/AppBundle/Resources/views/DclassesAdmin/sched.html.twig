@@ -1,0 +1,23 @@
+{% extends 'SonataAdminBundle:CRUD:base_show_field.html.twig' %}
+{% block field %}
+    {% spaceless %}
+        {% if object.getClassSched() is not empty %}
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr class="sonata-ba-list-field-header">
+                        <th class="sonata-ba-list-field-header-text">Week day</th>
+                        <th class="sonata-ba-list-field-header-text">Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for classSched in object.getClassSched() %}
+                        <tr>
+                            <td class="sonata-ba-list-field sonata-ba-list-field-text">{{ classSched.getWeekDayString() }}</td>
+                            <td class="sonata-ba-list-field sonata-ba-list-field-text">{{ classSched.getStartTime() | date('H:i') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% endspaceless %}
+{% endblock %}

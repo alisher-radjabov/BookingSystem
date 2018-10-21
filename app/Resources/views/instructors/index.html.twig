@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Instructors list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Instrname</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for instructor in instructors %}
+            <tr>
+                <td><a href="{{ path('instructors_show', { 'id': instructor.id }) }}">{{ instructor.instrName }}</a></td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('instructors_show', { 'id': instructor.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('instructors_edit', { 'id': instructor.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('instructors_new') }}">Create a new instructor</a>
+        </li>
+    </ul>
+{% endblock %}

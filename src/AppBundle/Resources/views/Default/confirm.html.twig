@@ -1,0 +1,20 @@
+{% block confirm %}
+	<table>
+		<label for="booking_info" class="form-control-label">Booking information: </label>
+		<table id="booking_info" class="table table-bordered">
+	    <thead>
+	      <tr>
+	      	{% for i in infos.bookingInfo %}
+	        	<th>Day {{ i.idCourseClasses.dayNumber }}</th>
+	    	{% endfor %}
+	      </tr>
+	    </thead>
+	    <tbody>
+	      <tr>
+	      	{% for i in infos.bookingInfo %}
+	        	<td>{{ i.classDate|date('l') }}, {{ i.classDate|date('m-d-Y') }}</td>
+	        {% endfor %}
+	      </tr>
+	    </tbody>
+	</table> 
+{% endblock %}

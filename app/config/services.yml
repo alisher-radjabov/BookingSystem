@@ -1,0 +1,82 @@
+# Learn more about services, parameters and containers at
+# http://symfony.com/doc/current/service_container.html
+parameters:
+#    parameter_name: value
+
+services:
+#    service_name:
+#        class: AppBundle\Directory\ClassName
+#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+     admin.instructor:
+        class: AppBundle\Admin\InstructorAdmin
+        arguments: [~, AppBundle\Entity\Instructor, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: staff, label: Instructors }
+
+     admin.dclasses:
+        class: AppBundle\Admin\DclassesAdmin
+        arguments: [~, AppBundle\Entity\Dclasses, AppBundle:DclassesAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: courses, label: Classes }
+        calls:
+            - [ addChild, ['@admin.classsched']]
+            
+
+     admin.courses:
+        class: AppBundle\Admin\CoursesAdmin
+        arguments: [~, AppBundle\Entity\Courses, AppBundle:CoursesAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: courses, label: Courses }
+        calls:
+            - [ setTranslationDomain, [toBundle]]
+            - [ addChild, ['@admin.course_classes']]
+
+     admin.course_classes:
+        class: AppBundle\Admin\CourseClassesAdmin
+        arguments: [~, AppBundle\Entity\CourseClasses, AppBundle:CourseClassesAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: courses, label: CourseClasses, show_in_dashboard: false }            
+
+     admin.classsched:
+        class: AppBundle\Admin\ClassSchedAdmin
+        arguments: [~, AppBundle\Entity\ClassSched, AppBundle:ClassSchedAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: courses, label: Sched, show_in_dashboard: false }
+        calls:
+            - [ setTranslationDomain, [AppBundle]]
+
+     admin.booking:
+        class: AppBundle\Admin\BookingAdmin
+        arguments: [~, AppBundle\Entity\Booking, AppBundle:BookingAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: bookings, label: Bookings }
+        calls:
+            - [ addChild, ['@admin.booking_info']]
+
+     admin.booking_info:
+        class: AppBundle\Admin\BookingInfoAdmin
+        arguments: [~, AppBundle\Entity\BookingInfo, AppBundle:BookingInfoAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: bookings, label: BookingInfo }
+
+
+
+     app.form.type.courseclient:
+        class: AppBundle\Form\CourseClientType
+        arguments: ['@doctrine.orm.entity_manager']
+        tags:
+            - { name: form.type }
+     app.form.type.bookinginfo:
+        class: AppBundle\Form\BookingInfoType
+        arguments: ['@doctrine.orm.entity_manager']
+        tags:
+            - { name: form.type }
+     twig.extension.intl:
+        class: Twig_Extensions_Extension_Intl
+        tags:
+            - { name: twig.extension }
+     app.extension.week:
+        class: AppBundle\Twig\WeekExtension
+        public: false
+        tags:
+            - { name: twig.extension }

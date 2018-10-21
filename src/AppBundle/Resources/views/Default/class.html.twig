@@ -1,0 +1,121 @@
+{# Template for ajax course classes rendering according to chosen course #}
+
+{% set tmpArr = [] %}
+{% set days = [] %}
+{% set gdays = "" %}
+
+{% block course_classes %}
+
+{% set classNumber = 0 %}
+
+{% for class in classes %}
+	
+	{% set classNumber = classNumber + 1 %}
+	{% set days = [] %}
+        
+		<div class='c_class' id='class_{{classNumber}}'>
+		{# Manually added fields for course classes entity, for sending through AJAX call #}
+		<input type="hidden"  name="booking_info[idCourseClasses][]" value="{{ class.id }}">
+		<input type="hidden"  name="booking_info[classDate][]" id="classDate_{{ classNumber }}">
+
+		{# Rendering course classes info #}
+			<label for="class_day" class="form-control-label">Day number: </label>
+			<div class='class_day'>{{ class.dayNumber }}</div><br>
+				<label for="class_title" class="form-control-label">Title:: </label>
+				<div class='class_title' data-idcc="{{ class.id }}" data-spots="{{ class.idClass.spots }}">{{ class.idClass.title }}</div><br>
+					<label for="class_descr" class="form-control-label">Description: </label>
+			        <div class='class_descr'>{{ class.idClass.description }}</div><br>
+			        <label for="class_sched" class="form-control-label">Schedule:</label>
+			        <div id='class_sched'>
+			        	<div class='sched'>
+				        	{% for sched in class.idClass.classSched %}
+					        	{{ sched.weekDay | dow }}
+					        	{% set days = days |merge([sched.weekDay]) %}
+					        	{{ sched.startTime | date('H:i') }}<br>
+				        	{% endfor %}
+				        </div>
+				    </div>
+					
+				    <label for="spots" class="form-control-label">Available spots: </label>
+			        <div class='spots'></div><br>
+
+					{% set key = classNumber  %}
+					{% set tmpArr = tmpArr |merge([days]) %}
+						
+					<div class="form-group row">
+					    <label for="datepicker" class="col-sm-3 form-control-label">Choose date:</label>
+					    <div class="col-sm-6">
+					        <div class="datepicker" id="datepicker_{{classNumber}}"></div>
+					    </div>
+					</div>
+				</div>
+			</div>
+
+
+
+
+		</div>
+
+{% endfor %}
+
+<script>
+	days = {{ tmpArr|json_encode|raw}}; //Getting week days of class schedule
+	classCount = {{ classNumber }}
+</script>
+{% endblock %}
+
+<script>
+
+	$.each( days, function( key, value ) {
+	 
+		j = key + 1;
+		$('#datepicker_' + j).datepicker({
+			dateFormat: "dd-mm-yy",
+			firstDay: 1,
+			minDate: 0,
+			defaultDate: null,
+			onSelect: function(dateText, inst) { 
+					var classNumber = $(this).closest('.c_class').attr('id').replace('class_', '');
+					var spots = $(this).closest('.c_class').children('.class_title').data('spots');
+					dic = parseInt(this.id.replace('datepicker_', ''));
+					chosenDate = dateText; 
+					chosenDateToDate = $.datepicker.parseDate("dd-mm-yy", chosenDate);
+					nextChosenDate = new Date();
+					nextChosenDate.setDate(chosenDateToDate.getDate() + 1);
+					$(this).closest('.c_class').nextAll('.c_class').find('.datepicker').datepicker("option", "minDate", nextChosenDate);
+					$('#classDate_' + classNumber).val(chosenDate);
+					
+					$.ajax({
+	                        type:"POST",
+	                        data:{
+	                        	'idCourseClasses': $(this).closest('.c_class').children('.class_title').data('idcc'),
+	                        	'chosenDate': chosenDate
+	                        },
+	                        url: "{{ path('app_ajax_spots')}}",
+	                        success: function(data)
+	                        {	//check available spots count for chosen date
+	                            var busySpots = data.spots; 
+								var availableSpots = spots - busySpots; 
+								$('#class_' + classNumber).find('.spots').text(availableSpots);
+								if (availableSpots < $('#booking_info_idBooking_studCount').val()) {
+									alert('Not enough spots. Please, choose another day.');
+								} else {
+									if (parseInt(classNumber) < parseInt(classCount) ){
+										$('#class_' + (parseInt(classNumber) + 1)).show();
+									} else {
+										$('#class_' + (parseInt(classNumber) + 1)).show();
+										$('#booking_info_create').prop('disabled', false);
+									}
+
+								}
+	                        }
+	                });
+
+	   		},
+	   		// disabling unavailable dates
+			beforeShowDay: function(date){
+				return [value.indexOf(date.getDay()) != -1, '', '']
+			}
+		});
+	});
+</script>

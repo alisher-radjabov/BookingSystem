@@ -1,0 +1,27 @@
+{% extends 'SonataAdminBundle:CRUD:base_show_field.html.twig' %}
+{% block field %}
+    {% spaceless %}
+        {% if object.getBookingInfo() is not empty %}
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr class="sonata-ba-list-field-header">
+                        <th class="sonata-ba-list-field-header-text">Class name</th>
+                        <th class="sonata-ba-list-field-header-text">Day of course</th>
+                        <th class="sonata-ba-list-field-header-text">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bookingInfo in object.getBookingInfo() %}
+                        <tr>
+                        
+                            <td class="sonata-ba-list-field sonata-ba-list-field-text"><a href="{{ path('admin_app_dclasses_show', {'id': bookingInfo.idCourseClasses.idClass().id }) }}">{{ bookingInfo.idCourseClasses.idClass() }}</a></td>
+                            <td class="sonata-ba-list-field sonata-ba-list-field-text">{{ bookingInfo.idCourseClasses.dayNumber() }}</td>
+                            <td class="sonata-ba-list-field sonata-ba-list-field-text">{{ bookingInfo.classDate |date("d-m-Y")}}</td>
+                        
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% endspaceless %}
+{% endblock %}

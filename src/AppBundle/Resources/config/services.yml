@@ -1,0 +1,6 @@
+services:
+    app.admin.booking:
+        class: AppBundle\Admin\BookingAdmin
+        arguments: [~, AppBundle\Entity\Booking, AppBundle:BookingAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Booking }
